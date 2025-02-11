@@ -1,34 +1,55 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './quote.css';
-import {useState , useEffect} from 'react';
 
 export default function Quote() {
-  const [quotes,setQuotes]=useState(" ");
-const getQuote =()=>{
-fetch("https://type.fit/api/quotes")
-.then((res)=>res.json())
-.then((data) => {
-  let ran = Math.floor(Math.random()*data.length);
-  setQuotes(data[ran]);
-} );
-};
-useEffect (()=>{getQuote();},
-[ ]);
+  const [quotes, setQuotes] = useState({ quote: "", author: "" });
 
+  const getQuote = () => {
+    fetch("https://api.api-ninjas.com/v1/quotes", {
+      method: 'GET',
+      headers: {
+        'X-Api-Key': 'zZYvPv5VOQrvxNm5Dctklg==NnYQM3VQarmyqibQ',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((data) => {
+      if (data.length > 0) {
+        let ran = Math.floor(Math.random() * data.length);
+        setQuotes(data[ran]);
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching quotes:", error);
+    });
+  };
+
+  useEffect(() => {
+    getQuote();
+  }, []);
 
   return (
-  <div className='main' >
-    <div className="te"> 
-    <p> {quotes.text}</p>
- <p className='author'>  - {quotes.author}</p>  
- 
- <button className='btn btn-rounded quote mx-3 ' onClick={getQuote}>𝔊𝔢𝔱 𝔔𝔲𝔬𝔱𝔢</button>
- <a href={`https://twitter.com/intent/tweet?text=${quotes.text}`}
-  className="btn btn-rounded quote" rel='noopener noreferrer' target="_blank">ȶաɛɛȶ</a>
+    <div className='main'>
+      <div className="te"> 
+        <p>{quotes.quote}</p>
+        <p className='author'>- {quotes.author}</p>  
 
- 
-    </div>
-    </div>
+        <button className='btn btn-rounded quote mx-3' onClick={getQuote}>
+          𝔊𝔢𝔱 𝔔𝔲𝔬𝔱𝔢
+        </button>
 
-  )
+        <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(quotes.quote + " - " + quotes.author)}`}
+          className="btn btn-rounded quote"
+          rel='noopener noreferrer' 
+          target="_blank">
+          ȶաɛɛȶ
+        </a>
+      </div>
+    </div>
+  );
 }
